@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ToDoScreen extends StatefulWidget {
   const ToDoScreen({Key? key}) : super(key: key);
@@ -9,14 +10,25 @@ class ToDoScreen extends StatefulWidget {
 
 class _ToDoScreenState extends State<ToDoScreen> {
   late TextEditingController _controller;
+  var titleTasks = List<String?>;
+  var tasks = <Widget>[];
+
   @override
   void initState() {
     _controller = TextEditingController();
     super.initState();
+    getData();
   }
 
-  var tasks = <Widget>[];
-  var index = 0;
+  void getData() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.getStringList("tasks");
+    setState(() {
+      print("datos obtenidos $titleTasks");
+      createTask(titleTasks);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,21 +44,47 @@ class _ToDoScreenState extends State<ToDoScreen> {
           decoration: const InputDecoration(hintText: "Nueva Tarea"),
           textInputAction: TextInputAction.done,
           onSubmitted: (value) {
-            tasks.add(createTask(value));
+            titleTasks.add(value);
+            addData(titleTasks!);
             _controller.clear();
           },
         ),
       ),
       body: ListView(
-        children: tasks,
+        children: [
+          ...tasks,
+          const SizedBox(height: 25),
+        ],
       ),
+      // floatingActionButton: clearData(),
     );
+  }
+
+  List<Widget> createTask(List<String>? tasksTitles) {
+    if (tasksTitles != null) {
+      for (var task in tasksTitles) {
+        tasks.add(ListTile(
+          leading: Checkbox(value: false, onChanged: (value) {}),
+          title: Text(task),
+        ));
+      }
+    }
+    return tasks;
   }
 }
 
-Widget createTask(String title) {
-  return ListTile(
-    leading: Checkbox(value: false, onChanged: (value) {}),
-    title: Text(title),
+void addData(List<String> tasks) async {
+  final prefs = await SharedPreferences.getInstance();
+  print("datos ingresados $tasks");
+  prefs.setStringList("tasks", tasks);
+}
+
+Widget clearData() {
+  return FloatingActionButton(
+    child: const Icon(Icons.delete),
+    onPressed: () async {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.clear();
+    },
   );
 }
