@@ -18,9 +18,10 @@ class MyApp extends StatelessWidget {
       ),
       //Configuracion para modo oscuro
       darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        primarySwatch: Colors.purple,
-      ),
+          brightness: Brightness.dark,
+          primarySwatch: Colors.purple,
+          floatingActionButtonTheme:
+              const FloatingActionButtonThemeData(backgroundColor: Colors.purple)),
       themeMode: ThemeMode.system,
       home: const HomeScreen(),
       initialRoute: "/",

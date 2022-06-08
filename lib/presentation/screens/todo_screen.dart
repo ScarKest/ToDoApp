@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:to_do_list_app/domain/entities/task.dart';
 
 class ToDoScreen extends StatefulWidget {
   const ToDoScreen({Key? key}) : super(key: key);
@@ -10,23 +13,19 @@ class ToDoScreen extends StatefulWidget {
 
 class _ToDoScreenState extends State<ToDoScreen> {
   late TextEditingController _controller;
-  var titleTasks = List<String?>;
-  var tasks = <Widget>[];
+  List<Task> tasksList = <Task>[];
+  late SharedPreferences preferences;
 
   @override
   void initState() {
     _controller = TextEditingController();
+    initData();
     super.initState();
-    getData();
   }
 
-  void getData() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.getStringList("tasks");
-    setState(() {
-      print("datos obtenidos $titleTasks");
-      createTask(titleTasks);
-    });
+  void initData() async {
+    preferences = await SharedPreferences.getInstance();
+    loadData();
   }
 
   @override
@@ -44,47 +43,61 @@ class _ToDoScreenState extends State<ToDoScreen> {
           decoration: const InputDecoration(hintText: "Nueva Tarea"),
           textInputAction: TextInputAction.done,
           onSubmitted: (value) {
-            titleTasks.add(value);
-            addData(titleTasks!);
+            addTask(Task(title: value, complete: false));
             _controller.clear();
           },
         ),
       ),
-      body: ListView(
-        children: [
-          ...tasks,
-          const SizedBox(height: 25),
-        ],
+      body: ListView.builder(
+        padding: const EdgeInsets.only(bottom: 30),
+        itemCount: tasksList.length,
+        itemBuilder: createTask,
       ),
-      // floatingActionButton: clearData(),
+      floatingActionButton: clearData(),
     );
   }
 
-  List<Widget> createTask(List<String>? tasksTitles) {
-    if (tasksTitles != null) {
-      for (var task in tasksTitles) {
-        tasks.add(ListTile(
-          leading: Checkbox(value: false, onChanged: (value) {}),
-          title: Text(task),
-        ));
-      }
-    }
-    return tasks;
+  Widget createTask(BuildContext context, int index) {
+    return ListTile(
+      trailing: Checkbox(
+          value: tasksList[index].complete,
+          onChanged: (value) => setCompleted(tasksList[index])),
+      title: Text(tasksList[index].title),
+    );
   }
-}
 
-void addData(List<String> tasks) async {
-  final prefs = await SharedPreferences.getInstance();
-  print("datos ingresados $tasks");
-  prefs.setStringList("tasks", tasks);
-}
+  void saveData() {
+    List<String> task =
+        tasksList.map((item) => json.encode(item.toMap())).toList();
+    preferences.setStringList("tasks", task);
+  }
 
-Widget clearData() {
-  return FloatingActionButton(
-    child: const Icon(Icons.delete),
-    onPressed: () async {
-      final prefs = await SharedPreferences.getInstance();
-      prefs.clear();
-    },
-  );
+  void loadData() {
+    List<String>? tasks = preferences.getStringList("tasks");
+    if (tasks != null) {
+      tasksList = tasks.map((task) => Task.fromMap(json.decode(task))).toList();
+      setState(() {});
+    }
+  }
+
+  void addTask(Task task) async {
+    setState(() {});
+    tasksList.add(task);
+    saveData();
+  }
+
+  void setCompleted(Task task) =>
+      setState(() => task.complete = !task.complete);
+
+  void removeTask(Task task) => setState(() => tasksList.remove(task));
+
+  Widget clearData() {
+    return FloatingActionButton(
+      child: const Icon(Icons.delete),
+      onPressed: () async => setState(() {
+        preferences.clear();
+        tasksList.clear();
+      }),
+    );
+  }
 }

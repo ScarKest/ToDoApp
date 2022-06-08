@@ -1,13 +1,13 @@
-class Todo {
-  String? title;
-  bool? complete;
+class Task {
+  String title;
+  bool complete;
 
-  Todo({
-    this.title,
-    this.complete,
+  Task({
+    required this.title,
+    required this.complete,
   });
 
-  Todo.fromMap(Map map)
+  Task.fromMap(Map map)
       : title = map["title"],
         complete = map["complete"];
 
