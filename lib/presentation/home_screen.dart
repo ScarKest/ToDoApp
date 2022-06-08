@@ -8,7 +8,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String title = "Kestler App";
+  String title = "ToDo Kest";
   @override
   Widget build(BuildContext context) {
     return Scaffold(

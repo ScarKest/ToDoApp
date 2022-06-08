@@ -87,7 +87,8 @@ class _ToDoScreenState extends State<ToDoScreen> {
   }
 
   void setCompleted(Task task) =>
-      setState(() => task.complete = !task.complete);
+      setState(() => tasksList.remove(task));
+      // setState(() => task.complete = !task.complete);
 
   void removeTask(Task task) => setState(() => tasksList.remove(task));
 

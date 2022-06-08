@@ -12,16 +12,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
+      title: 'ToDo Kest',
       theme: ThemeData(
         primarySwatch: Colors.purple,
       ),
       //Configuracion para modo oscuro
       darkTheme: ThemeData(
           brightness: Brightness.dark,
-          primarySwatch: Colors.purple,
+          primarySwatch: Colors.deepPurple,
           floatingActionButtonTheme:
-              const FloatingActionButtonThemeData(backgroundColor: Colors.purple)),
+              const FloatingActionButtonThemeData(backgroundColor: Colors.deepPurple)),
       themeMode: ThemeMode.system,
       home: const HomeScreen(),
       initialRoute: "/",
